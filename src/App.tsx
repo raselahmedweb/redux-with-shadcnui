@@ -1,9 +1,11 @@
-import { Button } from "./components/ui/button";
+import { Outlet } from "react-router";
+import Navbar from "./components/layout/Navbar";
 
 function App() {
   return (
-    <div>
-      <Button>Test</Button>
+    <div className="mx-40">
+      <Navbar />
+      <Outlet />
     </div>
   );
 }
