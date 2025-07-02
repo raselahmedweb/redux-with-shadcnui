@@ -5,4 +5,10 @@ export interface ITask {
   priority: "low" | "medium" | "high";
   dueDate: string;
   isCompleted: boolean;
+  assignUser: string | null;
+}
+
+export interface IUser {
+  id: string;
+  name: string;
 }

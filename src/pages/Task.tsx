@@ -1,3 +1,4 @@
+import TaskControl from "@/components/task-control";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -30,12 +31,12 @@ import {
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import {
-  addTask,
   deleteTask,
   selectTasks,
   toggleCompleteState,
   updateTask,
 } from "@/redux/features/task/taskSlice";
+import { selectUsers } from "@/redux/features/user/userSlice";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import type { ITask } from "@/types";
 import { format } from "date-fns";
@@ -69,19 +70,9 @@ export default function TaskCard() {
     }
   }, [editTask, editForm]);
 
-  const form = useForm();
-
   const tasks = useAppSelector(selectTasks);
   const dispatch = useAppDispatch();
 
-  const onSubmit: SubmitHandler<FieldValues> = (data) => {
-    dispatch(
-      addTask({
-        ...(data as ITask),
-        dueDate: data.dueDate?.toISOString(),
-      })
-    );
-  };
   const onEdit: SubmitHandler<FieldValues> = (data) => {
     dispatch(
       updateTask({
@@ -92,125 +83,14 @@ export default function TaskCard() {
     );
   };
 
+  const users = useAppSelector(selectUsers);
+
   return (
     <>
-      <div className="flex justify-end my-5">
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button variant="default">Add Task</Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px]">
-            <DialogTitle className="sr-only">Nothing</DialogTitle>
-            <DialogDescription className="sr-only">
-              This action cannot be undone. This will permanently delete your
-              account and remove your data from our servers.
-            </DialogDescription>
-            <Form {...form}>
-              <form
-                onSubmit={form.handleSubmit(onSubmit)}
-                className="space-y-8"
-              >
-                <FormField
-                  control={form.control}
-                  name="title"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Title</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Title"
-                          {...field}
-                          value={field.value || ""}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="description"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Description</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Description"
-                          {...field}
-                          value={field.value || ""}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="dueDate"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-col">
-                      <FormLabel>Due Date</FormLabel>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <FormControl>
-                            <Button
-                              variant={"outline"}
-                              className={cn(
-                                "pl-3 text-left font-normal",
-                                !field.value && "text-muted-foreground"
-                              )}
-                            >
-                              {field.value ? (
-                                format(field.value, "PPP")
-                              ) : (
-                                <span>Pick a date</span>
-                              )}
-                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                            </Button>
-                          </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar
-                            mode="single"
-                            selected={field.value}
-                            onSelect={field.onChange}
-                            // disabled={(date) => date < new Date("1900-01-01")}
-                            captionLayout="dropdown"
-                          />
-                        </PopoverContent>
-                      </Popover>
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="priority"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Priority</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                      >
-                        <FormControl className="w-full">
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select priority" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="low">Low</SelectItem>
-                          <SelectItem value="medium">Medium</SelectItem>
-                          <SelectItem value="high">High</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </FormItem>
-                  )}
-                />
-                <Button type="submit">Add</Button>
-              </form>
-            </Form>
-          </DialogContent>
-        </Dialog>
-      </div>
+      <TaskControl />
       {tasks.map((task, idx) => {
+        const assignedUser = users.find((user) => user.id === task.assignUser);
+
         return (
           <div key={idx} className="border px-5 py-3 rounded-md mb-5">
             <div className="flex justify-between items-center">
@@ -392,6 +272,7 @@ export default function TaskCard() {
                 />
               </div>
             </div>
+            <p>Assigned to - {assignedUser ? assignedUser.name : "no one"}</p>
             <p className="mt-5">{task.description}</p>
           </div>
         );

@@ -22,6 +22,7 @@ const initialState: InitialState = {
       description: "Create a github repo for assign ment 4",
       dueDate: "2025-07-04T21:00:00.000Z",
       priority: "high",
+      assignUser: "ihjvhvigy6yhgnh",
     },
     {
       id: "0q6-f9VpVeLjOJmpQgiUQ",
@@ -30,6 +31,7 @@ const initialState: InitialState = {
       description: "Create a Book management frontend and backend application",
       dueDate: "2025-07-04T21:00:00.000Z",
       priority: "medium",
+      assignUser: "ihjvhvigy6yhgnh",
     },
   ],
   filter: "all",
@@ -65,12 +67,33 @@ export const taskSlice = createSlice({
           : task
       );
     },
+    filterTask: (
+      state,
+      actions: PayloadAction<"all" | "low" | "medium" | "high">
+    ) => {
+      state.filter = actions.payload;
+    },
   },
 });
 
-export const { addTask, toggleCompleteState, deleteTask, updateTask } =
-  taskSlice.actions;
+export const {
+  addTask,
+  toggleCompleteState,
+  deleteTask,
+  updateTask,
+  filterTask,
+} = taskSlice.actions;
 
-export const selectTasks = (state: RootState) => state.todos.tasks;
+export const selectTasks = (state: RootState) => {
+  if (state.todos.filter === "low") {
+    return state.todos.tasks.filter((task) => task.priority === "low");
+  } else if (state.todos.filter === "high") {
+    return state.todos.tasks.filter((task) => task.priority === "high");
+  } else if (state.todos.filter === "medium") {
+    return state.todos.tasks.filter((task) => task.priority === "medium");
+  } else {
+    return state.todos.tasks;
+  }
+};
 
 export default taskSlice.reducer;
