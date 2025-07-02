@@ -4,10 +4,12 @@ import { ModeToggle } from "../mode-toggle";
 function Navbar() {
   return (
     <nav className="flex items-center py-3">
-      <h1 className="text-green-500 text-2xl font-bold mr-3">TaskManger</h1>
+      <Link to="/" className="text-green-500 text-2xl font-bold mr-3">
+        TaskManger
+      </Link>
       <ul className="flex items-center gap-3">
         <li>
-          <Link to="/">Tasks</Link>
+          <Link to="/tasks">Tasks</Link>
         </li>
         <li>
           <Link to="/users">Users</Link>
