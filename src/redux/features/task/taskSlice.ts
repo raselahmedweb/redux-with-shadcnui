@@ -1,16 +1,25 @@
 import type { RootState } from "@/redux/store";
 import type { ITask } from "@/types";
 import { createSlice, nanoid, type PayloadAction } from "@reduxjs/toolkit";
+import { deleteUser } from "../user/userSlice";
 
 interface InitialState {
   tasks: ITask[];
   filter: "all" | "low" | "medium" | "high";
 }
 
-type DraftTask = Pick<ITask, "title" | "description" | "dueDate" | "priority">;
+type DraftTask = Pick<
+  ITask,
+  "title" | "description" | "dueDate" | "priority" | "assignUser"
+>;
 
 const createTask = (taskData: DraftTask): ITask => {
-  return { id: nanoid(), isCompleted: false, ...taskData };
+  return {
+    ...taskData,
+    id: nanoid(),
+    isCompleted: false,
+    assignUser: taskData.assignUser ? taskData.assignUser : null,
+  };
 };
 
 const initialState: InitialState = {
@@ -31,7 +40,7 @@ const initialState: InitialState = {
       description: "Create a Book management frontend and backend application",
       dueDate: "2025-07-04T21:00:00.000Z",
       priority: "medium",
-      assignUser: "ihjvhvigy6yhgnh",
+      assignUser: null,
     },
   ],
   filter: "all",
@@ -73,6 +82,13 @@ export const taskSlice = createSlice({
     ) => {
       state.filter = actions.payload;
     },
+  },
+  extraReducers: (builder) => {
+    builder.addCase(deleteUser, (state, actions: PayloadAction<string>) => {
+      state.tasks.forEach((task) =>
+        task.assignUser === actions.payload ? (task.assignUser = null) : task
+      );
+    });
   },
 });
 

@@ -26,8 +26,11 @@ import {
   SelectValue,
 } from "./ui/select";
 import { selectUsers } from "@/redux/features/user/userSlice";
+import { useState } from "react";
+import { Textarea } from "./ui/textarea";
 
 function TaskControl() {
+  const [open, setOpen] = useState(false);
   const form = useForm();
   const dispatch = useAppDispatch();
   const onSubmit: SubmitHandler<FieldValues> = (data) => {
@@ -37,6 +40,8 @@ function TaskControl() {
         dueDate: data.dueDate?.toISOString(),
       })
     );
+    form.reset();
+    setOpen(false);
   };
 
   const users = useAppSelector(selectUsers);
@@ -74,7 +79,7 @@ function TaskControl() {
           </TabsList>
         </Tabs>
 
-        <Dialog>
+        <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
             <Button variant="default">Add Task</Button>
           </DialogTrigger>
@@ -112,7 +117,7 @@ function TaskControl() {
                     <FormItem>
                       <FormLabel>Description</FormLabel>
                       <FormControl>
-                        <Input
+                        <Textarea
                           placeholder="Description"
                           {...field}
                           value={field.value || ""}
